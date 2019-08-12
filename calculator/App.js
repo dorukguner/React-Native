@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
+const nums = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+const operators = ['+', '-', '*', '/'];
+const equals = '=';
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -12,13 +16,18 @@ export default class App extends Component {
   }
 
   _onPressButton(button) {
-    if (button === '=') {
+    let prevResult = this.state.result;
+    if (button === equals) {
       this.setState(previousState => (
         {
           result: eval(previousState.result),
           shouldClear: true,
         }
       ))
+    } else if (operators.includes(button) && prevResult.length > 1 && operators.includes(prevResult.substr(prevResult.length - 1))) {
+      this.setState({
+        result: prevResult.replace(/.$/, button),
+      })
     } else {
       if (this.state.shouldClear) {
         this.setState({
@@ -36,10 +45,8 @@ export default class App extends Component {
 
 
   render() {
-    const buttonValues = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '='];
-
     buttons = [];
-    buttonValues.forEach((value) => {
+    nums.forEach((value) => {
       buttons.push(
         <TouchableOpacity
           style={styles.button}
@@ -49,6 +56,26 @@ export default class App extends Component {
         </TouchableOpacity>
       );
     })
+
+    operators.forEach((value) => {
+      buttons.push(
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this._onPressButton(value)}
+        >
+          <Text> {value} </Text>
+        </TouchableOpacity>
+      );
+    })
+
+    buttons.push(
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => this._onPressButton(equals)}
+      >
+        <Text> {equals} </Text>
+      </TouchableOpacity>
+    );
 
 
     return (
