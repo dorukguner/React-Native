@@ -24,10 +24,12 @@ export default class App extends Component {
           shouldClear: true,
         }
       ))
-    } else if (operators.includes(button) && prevResult.length > 1 && operators.includes(prevResult.substr(prevResult.length - 1))) {
-      this.setState({
-        result: prevResult.replace(/.$/, button),
-      })
+    } else if (operators.includes(button)) {
+      if (prevResult.length > 1 && operators.includes(prevResult.substr(prevResult.length - 1))) {
+        this.setState({
+          result: prevResult.replace(/.$/, button),
+        })
+      }
     } else {
       if (this.state.shouldClear) {
         this.setState({
