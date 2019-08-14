@@ -6,24 +6,48 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      board: {},
-      turn: 'o',
+      board: [[], [], []],
+      turn: 'O',
+      score: [0, 0, 0, 0, 0, 0, 0, 0, 0],   // Used to calculate a winner, operates in O(n) time and space
       winner: undefined,
     }
   }
 
-  _onPressButton(loc) {
-    if (!this.state.board[loc] && !this.state.winner) {
+  _getWinner(newScore) {
+    for (let i = 0; i < newScore.length; i++) {
+      let curScore = newScore[i];
+      if (curScore === 3) {
+        return 'X';
+      }
+
+      if (curScore === -3) {
+        return 'O';
+      }
+    }
+  }
+
+  _onPressButton(i, j) {
+    if (!this.state.board[i][j] && !this.state.winner) {
       this.setState(prevState => {
         let curTurn = prevState.turn;
-        let nextTurn = curTurn === 'o' ? 'x' : 'o';
-        let newBoard = { ...prevState.board };
+        let nextTurn = curTurn === 'O' ? 'X' : 'O';
+        let point = curTurn === 'O' ? -1 : 1;
 
-        newBoard[loc] = curTurn;
+        let newBoard = [...prevState.board];
+        let newScore = [...prevState.score];
+
+        newBoard[i][j] = curTurn;
+        newScore[i] += point;
+        newScore[3 + j] += point;
+        if (i == j) newScore[2 * 3] += point;
+        if (3 - 1 - j == i) newScore[2 * 3 + 1] += point;
+
 
         return {
           board: newBoard,
           turn: nextTurn,
+          score: newScore,
+          winner: this._getWinner(newScore),
         }
       })
     }
@@ -32,18 +56,20 @@ export default class App extends Component {
   _renderBoard() {
     let renderedBoard = [];
 
-    for (let i = 0; i < 9; i++) {
-      let board = this.state.board;
-      let curShape = board[i] ? board[i] : '';
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let board = this.state.board;
+        let curLetter = board[i][j] ? board[i][j] : '';
 
-      renderedBoard.push(
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => this._onPressButton(i)}
-        >
-          <Text> {curShape} </Text>
-        </TouchableOpacity>
-      )
+        renderedBoard.push(
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => this._onPressButton(i, j)}
+          >
+            <Text> {curLetter} </Text>
+          </TouchableOpacity>
+        )
+      }
     }
     return renderedBoard;
   }
